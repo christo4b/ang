@@ -113,7 +113,7 @@ describe("digest", function(){
 
   });
 
-  it('should prevent infinite loops', function(){
+  it('should prevent infinite loops with watcher/liseners that reference one another', function(){
     scope.counterA = 0;
     scope.counterB = 0;
  
@@ -181,10 +181,9 @@ describe("digest", function(){
   });
 
   it('should check for internal equality with comparing arrays/objects', function(){
-
     scope.arrayValue = [1,2,3];
     scope.counter = 0;
-
+    
     scope.$watch(
       function(scope){ return scope.arrayValue; },
       function(newValue, oldValue, scope){ 
@@ -199,7 +198,23 @@ describe("digest", function(){
     scope.arrayValue.push(4);
     scope.$digest();
     expect(scope.counter).toBe(2);
+  });
 
+  it('handles NaNs', function(){
+    scope.numba = 0/0;
+    scope.counter = 0;
+    scope.$watch(
+      function(scope){ return scope.numba; },
+      function(newValue, oldValue, scope){ 
+        scope.counter++;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
   });
 
 });
