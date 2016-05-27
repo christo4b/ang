@@ -182,24 +182,25 @@ describe("digest", function(){
 
   it('should check for internal equality with comparing arrays/objects', function(){
 
-    scope.array = [1,2,3];
+    scope.arrayValue = [1,2,3];
     scope.counter = 0;
 
     scope.$watch(
-      function(scope){ return scope.array; },
+      function(scope){ return scope.arrayValue; },
       function(newValue, oldValue, scope){ 
-        scope.counter++
-      }
+        scope.counter++;
+      },
+      true
     );
 
     scope.$digest();
     expect(scope.counter).toBe(1);
 
-    scope.array.push(4);
+    scope.arrayValue.push(4);
     scope.$digest();
     expect(scope.counter).toBe(2);
-    
-  })
+
+  });
 
 });
 

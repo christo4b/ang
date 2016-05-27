@@ -9,16 +9,25 @@ function Scope() {
 }
 
 // Takes a watcher fn and a listener function and adds them to the scope's $$watchers array
-Scope.prototype.$watch = function(watchFn, listenerFn){
+Scope.prototype.$watch = function(watchFn, listenerFn, eq){
 
   var watcher = { 
     watchFn: watchFn,
     listenerFn: listenerFn || function(){},
-    last: initWatchValue
+    last: initWatchValue,
+    eq: !!eq
   };
 
   this.$$watchers.push(watcher);
   this.$$lastDirtyWatch = null;
+};
+
+Scope.prototype.$$areEqual = function(newValue, oldValue, eq){
+  if (eq) {
+    return _.isEqual(newValue, oldValue);
+  } else {
+    return newValue === oldValue;
+  }
 };
 
 // Digest will invoke the watcher and compare its return value
@@ -31,9 +40,10 @@ Scope.prototype.$$digestOnce = function() {
     newValue = watcher.watchFn(self);
     oldValue = watcher.last;
     // If we've encountered a dirty watch:
-    if (newValue !== oldValue) { 
+    if (!self.$$areEqual(newValue, oldValue, watcher.eq)) {
       self.$$lastDirtyWatch = watcher;
-      watcher.last = newValue;
+      //deep clone of the object b/c changes made to the object would be reflected in our reference to that object
+      watcher.last = (watcher.eq ? _.cloneDeep(newValue) : newValue);
       watcher.listenerFn(newValue, (oldValue === initWatchValue ? newValue : oldValue), self);
       dirty = true;
     // short circuit is possible because we're using Lodash forEach, not standard forEach
@@ -60,5 +70,7 @@ Scope.prototype.$digest = function() {
     }
   } while (dirty);
 };
+
+
 
 module.exports = Scope;
