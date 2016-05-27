@@ -159,4 +159,63 @@ describe("digest", function(){
 
   });
 
+  it('should deal with a listener adding a watcher', function(){
+    scope.aValue = 'xyz';
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope){ return scope.aValue; },
+      function(newValue, oldValue, scope){ 
+        scope.$watch(
+          function(scope){ return scope.aValue; },
+          function(newValue, oldValue, scope){ 
+            scope.counter++;
+          }
+        );
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+
+  });
+
+  it('should check for internal equality with comparing arrays/objects', function(){
+
+    scope.array = [1,2,3];
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope){ return scope.array; },
+      function(newValue, oldValue, scope){ 
+        scope.counter++
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+
+    scope.array.push(4);
+    scope.$digest();
+    expect(scope.counter).toBe(2);
+    
+  })
+
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -18,6 +18,7 @@ Scope.prototype.$watch = function(watchFn, listenerFn){
   };
 
   this.$$watchers.push(watcher);
+  this.$$lastDirtyWatch = null;
 };
 
 // Digest will invoke the watcher and compare its return value
@@ -49,6 +50,7 @@ Scope.prototype.$digest = function() {
   var ttl = 10;
   var dirty;
   // Keeping track of the last dirty watch to short circuit the loop
+  // putting property on this object so we can access it within the $watch
   this.$$lastDirtyWatch = null;
 
   do {
