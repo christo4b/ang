@@ -26,7 +26,9 @@ Scope.prototype.$$areEqual = function(newValue, oldValue, eq){
   if (eq) {
     return _.isEqual(newValue, oldValue);
   } else {
-    return newValue === oldValue;
+    return newValue === oldValue ||
+      (typeof newValue === 'number' && typeof oldValue === 'number' && 
+        isNaN(newValue) && isNaN(oldValue))
   }
 };
 
@@ -66,7 +68,7 @@ Scope.prototype.$digest = function() {
   do {
     dirty = this.$$digestOnce();
     if (dirty && !(ttl--)) {
-      throw '10 Digest Iterations Reached';
+      throw 'Error: TTL: 10 Digest Iterations Reached';
     }
   } while (dirty);
 };
