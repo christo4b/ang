@@ -29,19 +29,28 @@ Scope.prototype.$$digestOnce = function() {
   _.forEach(this.$$watchers, function(watcher) {
     newValue = watcher.watchFn(self);
     oldValue = watcher.last;
-
+    // If we've encountered a dirty watch:
     if (newValue !== oldValue) { 
+      self.$$lastDirtyWatch = watcher;
       watcher.last = newValue;
       watcher.listenerFn(newValue, (oldValue === initWatchValue ? newValue : oldValue), self);
       dirty = true;
+    // short circuit is possible because we're using Lodash forEach, not standard forEach
+    } else if (self.$$lastDirtyWatch === watcher) {
+      return false;
     }
   });
   return dirty;
 };
 
+
 Scope.prototype.$digest = function() {
+  // Using a "Time To Live" of ten to prevent infinite loops
   var ttl = 10;
   var dirty;
+  // Keeping track of the last dirty watch to short circuit the loop
+  this.$$lastDirtyWatch = null;
+
   do {
     dirty = this.$$digestOnce();
     if (dirty && !(ttl--)) {
