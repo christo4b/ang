@@ -36,7 +36,7 @@ describe("digest", function(){
 
   it('calls the listener function when the watched value changes', function(){
     scope.someValue = 'a';
-    scope.counter = 0
+    scope.counter = 0;
 
     scope.$watch(
       function(scope){ return scope.someValue; },
