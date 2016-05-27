@@ -11,7 +11,7 @@ module.exports = function(config){
     },
     browsers: ['PhantomJS'],
     browserify: {
-      debug: true
+      debug: false
     }
   }); 
 };
