@@ -29,7 +29,7 @@ Scope.prototype.$digest = function(){
     newValue = watcher.watchFn(self);
     oldValue = watcher.last;
 
-    if(newValue !== oldValue){
+    if(newValue !== oldValue){ 
       watcher.last = newValue;
       watcher.listenerFn(newValue, oldValue, self);
     }

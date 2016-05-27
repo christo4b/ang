@@ -34,7 +34,11 @@ describe("digest", function(){
     expect(watchFn).toHaveBeenCalledWith(scope);
   });
 
+  // We'll set some properties on the scope, and set a watcher on one of the properties
+
   it('calls the listener function when the watched value changes', function(){
+    // If $digest sees a change in the scope.someValue, it will then invoke the listener
+    // which will increment some.counter
     scope.someValue = 'a';
     scope.counter = 0;
 
@@ -59,11 +63,38 @@ describe("digest", function(){
   it('may have watchers that omit the listener function', function(){
     var watchFn = jasmine.createSpy().and.returnValue('something');
     scope.$watch(watchFn);
-
     scope.$digest();
-
     expect(watchFn).toHaveBeenCalled();
   });
-  
+
+  it('triggers chained watchers in the same digest', function(){
+    scope.name = "Jane";
+
+    scope.$watch(
+      function(scope){ return scope.name; },
+      function(newValue, oldValue, scope){ 
+        if (newValue) {
+          scope.nameUpper = newValue.toUpperCase();
+        }
+      }
+    );
+
+    scope.$watch(
+      function(scope) { return scope.nameUpper; },
+      function(newValue, oldValue, scope) {
+        if (newValue) {
+          scope.initial = newValue.substring(0,1) + '.';
+        }
+      }
+    );
+
+    scope.$digest();
+    expect(scope.initial).toBe('J.');
+
+    scope.name = 'Chris';
+    scope.$digest();
+    expect(scope.initial).toBe('C.');
+
+  });
 
 });
