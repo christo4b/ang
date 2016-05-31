@@ -217,8 +217,28 @@ describe("digest", function(){
     expect(scope.counter).toBe(1);
   });
 
-});
 
+  // Exceptions can occur in the watch function and the listen function.
+  // We want to test to make sure that the function executes, hits an exception, and then continues on the next watcher
+  it('catches exceptions in the watch function and then continues', function(){
+    scope.aValue = 'a';
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { throw 'Error'; },
+      function(newValue, oldValue, scope) {}
+    );
+    scope.$watch(
+      function(scope) { return scope.aValue; },
+      function(newValue, oldValue, scope) {
+        scope.counter++;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+  });
+});
 
 
 
