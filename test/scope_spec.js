@@ -238,6 +238,25 @@ describe("digest", function(){
     scope.$digest();
     expect(scope.counter).toBe(1);
   });
+
+  it('catches exceptions in listener function and continues with digest', function(){
+    scope.aValue = 'a';
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { return scope.aValue; },
+      function(newValue, oldValue, scope) {
+        throw 'Error';
+    });
+
+    scope.$watch(
+      function(scope) { return scope.aValue; },
+      function(newValue, oldValue, scope) {}
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+  });
 });
 
 
