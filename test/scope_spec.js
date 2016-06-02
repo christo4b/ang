@@ -259,10 +259,39 @@ describe("digest", function(){
     scope.$digest();
     expect(scope.counter).toBe(1);
   });
-
-  
 });
 
+describe('$eval', function(){
+
+// $eval executes the expression on the current scope and returns the result
+
+  var scope;
+
+  beforeEach(function(){
+    scope = new Scope();
+  });
+
+  it('executes an $evaled function and returns the result', function(){
+    scope.a = 30;
+
+    var result = scope.$eval( function(scope) { 
+      return scope.a; 
+    });
+
+    expect(result).toBe(30);
+
+  });
+
+  it('passes a second argument in', function(){
+    scope.a = 30;
+
+    var result = scope.$eval(function(scope, arg){
+      return scope.a + arg;
+    }, 20);
+    expect(result).toBe(50);
+  });
+
+});
 
 
 
