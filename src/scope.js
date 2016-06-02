@@ -28,7 +28,7 @@ Scope.prototype.$$areEqual = function(newValue, oldValue, eq){
   } else {
     return newValue === oldValue ||
       (typeof newValue === 'number' && typeof oldValue === 'number' && 
-        isNaN(newValue) && isNaN(oldValue))
+        isNaN(newValue) && isNaN(oldValue));
   }
 };
 
@@ -39,18 +39,22 @@ Scope.prototype.$$digestOnce = function() {
   var self = this;
   var newValue, oldValue, dirty;
   _.forEach(this.$$watchers, function(watcher) {
-    newValue = watcher.watchFn(self);
-    oldValue = watcher.last;
-    // If we've encountered a dirty watch:
-    if (!self.$$areEqual(newValue, oldValue, watcher.eq)) {
-      self.$$lastDirtyWatch = watcher;
-      //deep clone of the object b/c changes made to the object would be reflected in our reference to that object
-      watcher.last = (watcher.eq ? _.cloneDeep(newValue) : newValue);
-      watcher.listenerFn(newValue, (oldValue === initWatchValue ? newValue : oldValue), self);
-      dirty = true;
-    // short circuit is possible because we're using Lodash forEach, not standard forEach
-    } else if (self.$$lastDirtyWatch === watcher) {
-      return false;
+    try {
+      newValue = watcher.watchFn(self);
+      oldValue = watcher.last;
+      // If we've encountered a dirty watch:
+      if (!self.$$areEqual(newValue, oldValue, watcher.eq)) {
+        self.$$lastDirtyWatch = watcher;
+        //deep clone of the object b/c changes made to the object would be reflected in our reference to that object
+        watcher.last = (watcher.eq ? _.cloneDeep(newValue) : newValue);
+        watcher.listenerFn(newValue, (oldValue === initWatchValue ? newValue : oldValue), self);
+        dirty = true;
+      // short circuit is possible because we're using Lodash forEach, not standard forEach
+      } else if (self.$$lastDirtyWatch === watcher) {
+        return false;
+      }
+    } catch (e) {
+      console.error(e);
     }
   });
   return dirty;

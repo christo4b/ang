@@ -251,12 +251,16 @@ describe("digest", function(){
 
     scope.$watch(
       function(scope) { return scope.aValue; },
-      function(newValue, oldValue, scope) {}
+      function(newValue, oldValue, scope) {
+        scope.counter++;
+      }
     );
 
     scope.$digest();
     expect(scope.counter).toBe(1);
   });
+
+  
 });
 
 
