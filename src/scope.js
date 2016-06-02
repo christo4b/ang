@@ -6,6 +6,8 @@ function initWatchValue(){}
 
 function Scope() {
   this.$$watchers = [];
+  this.$$lastDirtyWatch = null;
+  this.$$asyncQueue = [];
 }
 
 // Takes a watcher fn and a listener function and adds them to the scope's $$watchers array
@@ -60,7 +62,6 @@ Scope.prototype.$$digestOnce = function() {
   return dirty;
 };
 
-
 Scope.prototype.$digest = function() {
   // Using a "Time To Live" of ten to prevent infinite loops
   var ttl = 10;
@@ -76,6 +77,22 @@ Scope.prototype.$digest = function() {
     }
   } while (dirty);
 };
+
+Scope.prototype.$eval = function(expression, locals){
+  return expression(this, locals);
+};
+
+Scope.prototype.$apply = function(expression){
+  try {
+    return this.$eval(expression);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    this.$digest();
+  }
+};
+
+
 
 
 

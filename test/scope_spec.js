@@ -225,7 +225,9 @@ describe("digest", function(){
     scope.counter = 0;
 
     scope.$watch(
-      function(scope) { throw 'Error'; },
+      function(scope) { 
+        // throw 'Error'; 
+      },
       function(newValue, oldValue, scope) {}
     );
     scope.$watch(
@@ -246,7 +248,8 @@ describe("digest", function(){
     scope.$watch(
       function(scope) { return scope.aValue; },
       function(newValue, oldValue, scope) {
-        throw 'Error';
+        // throw 'Error';
+
     });
 
     scope.$watch(
@@ -263,38 +266,105 @@ describe("digest", function(){
 
 describe('$eval', function(){
 
-// $eval executes the expression on the current scope and returns the result
-
+  // $eval executes the expression on the current scope and returns the result
   var scope;
-
   beforeEach(function(){
     scope = new Scope();
   });
 
   it('executes an $evaled function and returns the result', function(){
     scope.a = 30;
-
     var result = scope.$eval( function(scope) { 
       return scope.a; 
     });
-
     expect(result).toBe(30);
-
   });
 
   it('passes a second argument in', function(){
     scope.a = 30;
-
     var result = scope.$eval(function(scope, arg){
       return scope.a + arg;
     }, 20);
     expect(result).toBe(50);
   });
+});
+
+describe('$apply', function(){
+  // $apply takes a function, executes the function, and then starts the digest cycle
+  var scope;
+  beforeEach(function(){
+    scope = new Scope();
+  });
+  it('executes given func and then executes digest', function(){
+    scope.val = 'a';
+    scope.counter = 0;
+    
+    scope.$watch(
+      function(scope){ return scope.val; },
+      function(newValue, oldValue, eq){
+        scope.counter++;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+
+    scope.$apply( function(scope){ 
+      scope.val = 'b';
+    });
+
+    expect(scope.counter).toBe(2);    
+  });
+
+});
+
+describe('$evalAsync', function(){
+
+  var scope;
+  beforeEach(function(){
+    scope = new Scope();
+  });
+
+  it('executes the provided function later in the same digest cycle', function(){
+    scope.value = [1,2,3];
+    scope.asyncEvaluated = false;
+    scope.asyncEvaluatedImmediately = false;
+
+    // call evalAsync in the listener and then check if the function was executed in the same digest, 
+    // but executed after the listener function had finished executing
+    scope.$watch(
+      function(scope){ return scope.value; },
+      function(newValue, oldValue, eq){
+        scope.$evalAsync(function(scope){
+          scope.asyncEvaluated = true;
+        });
+        scope.asyncEvaluatedImmediately = scope.asyncEvaluated;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.asyncEvaluated).toBe(true);
+    expect(scope.asyncEvaluatedImmediately).toBe(false);
+  });
 
 });
 
 
+// describe('$eval', function(){
 
+//   it('something', function(){
+
+//   });
+  
+// });
+
+// describe('$eval', function(){
+
+//   it('something', function(){
+
+//   });
+  
+// });
 
 
 
