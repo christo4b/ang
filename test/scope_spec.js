@@ -347,6 +347,46 @@ describe('$evalAsync', function(){
     expect(scope.asyncEvaluatedImmediately).toBe(false);
   });
 
+  it('executes $evalAsynced functions added by watch functions', function(){
+    scope.value = [7,8,9];
+    scope.asyncEvaluated = false;
+
+    scope.$watch(
+      function(scope){ 
+        if (!scope.asyncEvaluated) {
+          scope.$evalAsync(function(scope){
+            scope.asyncEvaluated = true;
+          });
+        }
+        return scope.value; 
+      },
+      function(newValue, oldValue, eq){ } 
+    );
+
+    scope.$digest();
+    expect(scope.asyncEvaluated).toBe(true);
+  });
+
+  it('executes $evalAsynced functions even when not dirty', function() {
+    scope.value = [7,8,9];
+    scope.asyncEvaluatedTimes = 0;
+
+    scope.$watch(
+      function(scope) {
+        if (scope.asyncEvaluatedTimes < 2){
+          scope.$evalAsync(function(scope){
+            scope.asyncEvaluatedTimes++;
+          });
+        }
+        return scope.aValue;
+      },
+      function(newValue,oldValue,scope){}
+    );
+    scope.$digest();
+
+    expect(scope.asyncEvaluatedTimes).toBe(2);
+  });
+
 });
 
 

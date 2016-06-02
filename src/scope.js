@@ -76,10 +76,10 @@ Scope.prototype.$digest = function() {
       asyncTask.scope.$eval(asyncTask.expression);
     }
     dirty = this.$$digestOnce();
-    if (dirty && !(ttl--)) {
+    if ((dirty || this.$$asyncQueue.length) && !(ttl--)) {
       throw 'Error: TTL: 10 Digest Iterations Reached';
     }
-  } while (dirty);
+  } while (dirty || this.$$asyncQueue.length);
 };
 
 Scope.prototype.$eval = function(expression, locals){
@@ -99,9 +99,5 @@ Scope.prototype.$apply = function(expression){
 Scope.prototype.$evalAsync = function(expression){
   this.$$asyncQueue.push({scope: this, expression: expression});
 };
-
-
-
-
 
 module.exports = Scope;
