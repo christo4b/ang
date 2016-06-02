@@ -71,6 +71,10 @@ Scope.prototype.$digest = function() {
   this.$$lastDirtyWatch = null;
 
   do {
+    while (this.$$asyncQueue.length) {
+      var asyncTask = this.$$asyncQueue.shift();
+      asyncTask.scope.$eval(asyncTask.expression);
+    }
     dirty = this.$$digestOnce();
     if (dirty && !(ttl--)) {
       throw 'Error: TTL: 10 Digest Iterations Reached';
@@ -90,6 +94,10 @@ Scope.prototype.$apply = function(expression){
   } finally {
     this.$digest();
   }
+};
+
+Scope.prototype.$evalAsync = function(expression){
+  this.$$asyncQueue.push({scope: this, expression: expression});
 };
 
 
