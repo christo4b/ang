@@ -12,7 +12,7 @@ function Scope() {
 
 // Takes a watcher fn and a listener function and adds them to the scope's $$watchers array
 Scope.prototype.$watch = function(watchFn, listenerFn, eq){
-
+ 
   var watcher = { 
     watchFn: watchFn,
     listenerFn: listenerFn || function(){},
